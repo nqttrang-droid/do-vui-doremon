@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đố vui Doraemon</title>
+<style>
+  :root{
+    --sky:#e6f4ff; --sky2:#c9e7ff; --blue:#1e88e5; --blue-d:#1565c0;
+    --red:#e53935; --yellow:#ffc928; --ink:#1b2a3a; --muted:#5b6b7c;
+    --card:#ffffff; --ok:#2e9e5b; --ok-bg:#e3f6ea; --bad:#d64040; --bad-bg:#fdeaea;
+    --line:#d7e6f3;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    min-height:100vh; font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+    color:var(--ink); background:linear-gradient(180deg,var(--sky) 0%,var(--sky2) 100%);
+    display:flex; justify-content:center; padding:24px 16px;
+  }
+  .wrap{width:100%; max-width:680px}
+  .card{background:var(--card); border-radius:22px; box-shadow:0 10px 30px rgba(30,136,229,.15); padding:28px}
+  h1{margin:0 0 6px; font-size:32px; color:var(--blue-d); letter-spacing:-.5px}
+  .sub{color:var(--muted); margin:0 0 20px; line-height:1.5}
+  .bell{display:inline-grid; place-items:center; width:56px; height:56px; border-radius:50%;
+    background:var(--yellow); border:4px solid #f0a500; font-size:26px; margin-bottom:14px;
+    box-shadow:inset 0 -6px 0 rgba(0,0,0,.08)}
+  .stats{display:flex; gap:10px; flex-wrap:wrap; margin:0 0 22px}
+  .chip{background:var(--sky); border-radius:999px; padding:6px 14px; font-size:14px; color:var(--blue-d); font-weight:600}
+  button{font:inherit; cursor:pointer; border:none}
+  .btn{background:var(--blue); color:#fff; font-weight:700; font-size:18px; padding:14px 26px;
+    border-radius:14px; box-shadow:0 4px 0 var(--blue-d); transition:transform .08s, box-shadow .08s}
+  .btn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--blue-d)}
+  .btn.red{background:var(--red); box-shadow:0 4px 0 #b71c1c}
+  .btn.ghost{background:transparent; color:var(--blue-d); box-shadow:none; border:2px solid var(--line)}
+  .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+  .top{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; font-weight:700; color:var(--blue-d)}
+  .bar{height:10px; background:var(--sky); border-radius:99px; overflow:hidden; margin-bottom:22px}
+  .bar>i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),#42a5f5); transition:width .3s}
+  .tag{display:inline-block; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.6px;
+    color:var(--red); background:#ffecec; padding:4px 10px; border-radius:99px; margin-bottom:12px}
+  .q{font-size:22px; line-height:1.45; margin:0 0 20px; font-weight:650}
+  .opts{display:grid; gap:10px}
+  .opt{display:flex; gap:12px; align-items:center; text-align:left; width:100%; background:#f7fbff;
+    border:2px solid var(--line); border-radius:14px; padding:14px 16px; font-size:17px; color:var(--ink);
+    transition:border-color .15s, background .15s, transform .08s}
+  .opt:hover:not(:disabled){border-color:var(--blue); background:#eef7ff}
+  .opt:active:not(:disabled){transform:scale(.99)}
+  .opt .k{flex:none; width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
+    background:var(--sky); color:var(--blue-d); font-weight:800; font-size:14px}
+  .opt.ok{border-color:var(--ok); background:var(--ok-bg)}
+  .opt.ok .k{background:var(--ok); color:#fff}
+  .opt.bad{border-color:var(--bad); background:var(--bad-bg)}
+  .opt.bad .k{background:var(--bad); color:#fff}
+  .opt:disabled{cursor:default}
+  .tf{grid-template-columns:1fr 1fr}
+  .tf .opt{justify-content:center; font-weight:700; font-size:19px}
+  .exp{margin-top:18px; padding:14px 16px; border-radius:14px; line-height:1.5; display:none}
+  .exp.show{display:block}
+  .exp.ok{background:var(--ok-bg); color:#1d6b3f}
+  .exp.bad{background:var(--bad-bg); color:#9b2c2c}
+  .next{margin-top:18px; display:none}
+  .next.show{display:flex; justify-content:flex-end}
+  .big{font-size:64px; font-weight:800; color:var(--blue-d); line-height:1; margin:8px 0}
+  .stars{font-size:40px; letter-spacing:6px; margin:6px 0 4px}
+  .rank{font-size:20px; font-weight:700; margin:0 0 18px}
+  .review{margin-top:24px; border-top:2px dashed var(--line); padding-top:18px}
+  .review h3{margin:0 0 12px; font-size:18px}
+  .rv{padding:12px 0; border-bottom:1px solid var(--line); line-height:1.5}
+  .rv:last-child{border-bottom:none}
+  .rv .yq{font-weight:600}
+  .rv .ya{color:var(--bad)}
+  .rv .ra{color:var(--ok)}
+  .hide{display:none}
+  .sound{background:none; font-size:20px; padding:4px}
+  .hint{font-size:13px; color:var(--muted); margin-top:14px}
+  @media (max-width:480px){
+    .card{padding:20px}
+    h1{font-size:26px}
+    .q{font-size:19px}
+    .opt{font-size:16px; padding:12px 14px}
+    .big{font-size:52px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Màn hình bắt đầu -->
+  <section id="start" class="card">
+    <div class="bell">🔔</div>
+    <h1>Đố vui Doraemon</h1>
+    <p class="sub">Mỗi lượt chơi gồm 20 câu hỏi rút ngẫu nhiên từ kho câu hỏi về chú mèo máy đến từ thế kỷ 22, các bạn của Nobita, bảo bối thần kỳ và những điều thú vị quanh bộ truyện. Chơi lại là gặp bộ câu hỏi khác.</p>
+    <div class="stats">
+      <span class="chip" id="bankCount">Kho: … câu</span>
+      <span class="chip">20 câu mỗi lượt</span>
+      <span class="chip">Trắc nghiệm và Đúng/Sai</span>
+    </div>
+    <button class="btn red" id="go">Bắt đầu chơi</button>
+    <p class="hint">Mẹo: trên máy tính, bấm phím 1–4 để chọn đáp án, Enter để sang câu tiếp.</p>
+  </section>
+
+  <!-- Màn hình chơi -->
+  <section id="play" class="card hide">
+    <div class="top">
+      <span id="counter">Câu 1/20</span>
+      <span class="row" style="gap:6px"><span id="score">⭐ 0</span><button class="sound" id="snd" title="Bật/tắt âm thanh">🔊</button></span>
+    </div>
+    <div class="bar"><i id="prog"></i></div>
+    <span class="tag" id="qtype">Trắc nghiệm</span>
+    <p class="q" id="qtext"></p>
+    <div class="opts" id="opts"></div>
+    <div class="exp" id="exp"></div>
+    <div class="next" id="nextWrap"><button class="btn" id="next">Câu tiếp →</button></div>
+  </section>
+
+  <!-- Màn hình kết quả -->
+  <section id="result" class="card hide" style="text-align:center">
+    <div class="bell">🔔</div>
+    <div class="stars" id="stars"></div>
+    <div class="big" id="final">0/20</div>
+    <p class="rank" id="rank"></p>
+    <div class="row" style="justify-content:center">
+      <button class="btn red" id="again">Chơi lượt mới</button>
+    </div>
+    <div class="review" id="review" style="text-align:left"></div>
+  </section>
+
+</div>
+
+<script>
+/* ===================== KHO DỮ LIỆU ===================== */
+/* Mỗi dữ kiện sinh ra nhiều câu hỏi (trắc nghiệm xuôi/ngược, Đúng/Sai).
+   Mỗi lượt chơi lấy 20 dữ kiện khác nhau, mỗi dữ kiện 1 câu, nên không lặp ý trong cùng lượt. */
+
+const C = {
+  no:'Nobita', do:'Doraemon', sh:'Xuka', gi:'Chaien', su:'Xeko', de:'Dekhi',
+  dm:'Dorami', se:'Sewashi', ja:'Jaiko', mo:'Mẹ Nobita', fa:'Bố Nobita', te:'Thầy giáo của Nobita'
+};
+
+// [nhân vật đúng, đặc điểm, nhân vật cần loại khỏi phương án sai]
+const TRAITS = [
+  ['do','là robot mèo đến từ thế kỷ 22',['dm']],
+  ['do','rất sợ chuột'],
+  ['do','thích nhất món bánh rán (dorayaki)'],
+  ['do','có chiếc túi thần kỳ bốn chiều trước bụng',['dm']],
+  ['do','ngủ trong tủ âm tường ở phòng Nobita'],
+  ['do','sinh ngày 3 tháng 9 năm 2112'],
+  ['do','vốn có màu vàng và có tai trước khi bị chuột gặm mất tai',['dm']],
+  ['do','thích cô mèo Mi-chan ở gần nhà'],
+  ['do','có cái đuôi là công tắc, kéo vào thì tắt nguồn',['dm']],
+  ['no','đeo kính, học kém và hay bị điểm 0'],
+  ['no','bắn súng rất giỏi'],
+  ['no','chơi trò bện dây (ayatori) rất giỏi'],
+  ['no','sinh ngày 7 tháng 8'],
+  ['no','sau này sẽ cưới Xuka'],
+  ['no','có tên đầy đủ tiếng Nhật là Nobi Nobita'],
+  ['sh','rất thích tắm'],
+  ['sh','thích ăn khoai lang nướng'],
+  ['sh','học đàn violin nhưng kéo đàn chưa hay'],
+  ['sh','có tên đầy đủ tiếng Nhật là Minamoto Shizuka'],
+  ['gi','hát rất dở nhưng hay tổ chức "buổi hòa nhạc" bắt bạn bè đến nghe'],
+  ['gi','có câu nói nổi tiếng "Của tao là của tao, của mày cũng là của tao"'],
+  ['gi','có mẹ bán hàng tạp hóa và hay phải phụ trông cửa hàng'],
+  ['gi','có tên đầy đủ tiếng Nhật là Goda Takeshi'],
+  ['gi','có em gái tên là Jaiko'],
+  ['su','là con nhà giàu, hay khoe đồ chơi mới'],
+  ['su','có kiểu tóc nhọn rất đặc trưng'],
+  ['su','thích chơi mô hình và đồ chơi điều khiển từ xa'],
+  ['su','hay theo phe Chaien và nịnh Chaien'],
+  ['su','có tên đầy đủ tiếng Nhật là Honekawa Suneo'],
+  ['de','vừa học giỏi vừa chơi thể thao giỏi',['sh']],
+  ['de','có tên đầy đủ tiếng Nhật là Dekisugi Hidetoshi'],
+  ['dm','là em gái của Doraemon'],
+  ['dm','là robot mèo màu vàng và có tai',['do']],
+  ['dm','thích ăn bánh mì dưa (melon pan)'],
+  ['se','là cháu chắt của Nobita, sống ở thế kỷ 22'],
+  ['se','là người gửi Doraemon về quá khứ để giúp Nobita'],
+  ['ja','là em gái Chaien và thích vẽ truyện tranh'],
+  ['ja','là người Nobita sẽ cưới theo tương lai ban đầu, trước khi Doraemon đến'],
+  ['mo','có tên là Tamako'],
+  ['mo','hay mắng Nobita mỗi khi bị điểm kém',['te','fa']],
+  ['fa','có tên là Nobisuke và đi làm ở công ty'],
+  ['fa','hồi trẻ từng mơ ước trở thành họa sĩ',['ja']],
+  ['te','hay phạt Nobita đứng ngoài hành lang khi đi muộn hoặc quên làm bài',['mo']]
+];
+
+// [tên bảo bối, công dụng]
+const GADGETS = [
+  ['Cánh cửa thần kỳ','đi tới bất cứ nơi nào chỉ bằng cách mở cửa bước qua'],
+  ['Chong chóng tre','gắn lên đầu để bay lượn trên trời'],
+  ['Cỗ máy thời gian','du hành về quá khứ hoặc tới tương lai'],
+  ['Đèn pin thu nhỏ','chiếu vào người hay đồ vật để thu nhỏ lại'],
+  ['Đèn pin phóng to','chiếu vào người hay đồ vật để phóng to lên'],
+  ['Bánh mì trí nhớ','in chữ lên bánh, ăn vào là thuộc ngay nội dung'],
+  ['Thạch phiên dịch','ăn vào để hiểu và nói được mọi thứ tiếng'],
+  ['Khăn trùm thời gian','trùm lên đồ vật để làm nó mới lại hoặc cũ đi'],
+  ['Súng hơi','đeo vào tay để bắn ra luồng khí cực mạnh'],
+  ['Bốt điện thoại "Giá như"','nói ra một điều giả định để cả thế giới thay đổi theo'],
+  ['Máy ảnh thay đồ','chụp vào người để thay ngay bộ quần áo khác'],
+  ['Bút chì máy tính','tự động viết ra đáp án đúng khi làm bài'],
+  ['Gậy chỉ đường','dựng gậy lên, gậy đổ về hướng nào thì đi theo hướng đó'],
+  ['Khăn trải bàn ẩm thực','gọi tên món ăn để món đó hiện ra trên bàn'],
+  ['Đồng hồ ngưng thời gian','làm mọi vật xung quanh đứng yên trong khi mình vẫn cử động'],
+  ['Kẹo đổi giọng','ăn vào để nói bằng giọng của người khác'],
+  ['Bánh bao Momotaro','cho động vật ăn để chúng ngoan ngoãn nghe lời'],
+  ['Vòng xuyên tường','đặt lên tường để chui xuyên qua'],
+  ['Tivi thời gian','xem lại cảnh ở quá khứ hoặc tương lai'],
+  ['Khí làm cứng mây','xịt vào mây để mây cứng lại, đứng lên được'],
+  ['Túi dự phòng','nối với túi thần kỳ để lấy bảo bối khi Doraemon vắng nhà'],
+  ['Gương thế giới ngược','đi vào thế giới trong gương, nơi mọi thứ bị đảo trái phải'],
+  ['Mũ đá cuội','đội lên để người xung quanh không để ý tới mình'],
+  ['Áo choàng đấu bò','vẫy để làm vật đang lao tới đổi hướng'],
+  ['Thuốc nói ngược (Uso 800)','uống vào thì mọi điều mình nói ra đều thành ngược lại'],
+  ['Găng tay siêu sức mạnh','đeo vào để nâng được những vật rất nặng'],
+  ['Túi thần kỳ bốn chiều','chứa vô số bảo bối mà không bao giờ đầy']
+];
+
+// {q: câu hỏi, a: đáp án, w: 3 phương án sai, s: câu khẳng định có chỗ trống {}}
+const MISC = [
+  {q:'Ai là tác giả của bộ truyện tranh Doraemon?', a:'Fujiko F. Fujio', w:['Tezuka Osamu','Toriyama Akira','Oda Eiichiro'], s:'Tác giả của bộ truyện tranh Doraemon là {}.'},
+  {q:'Tên thật của tác giả Fujiko F. Fujio là gì?', a:'Fujimoto Hiroshi', w:['Abiko Motoo','Akatsuka Fujio','Ishinomori Shotaro'], s:'Tên thật của tác giả Fujiko F. Fujio là {}.'},
+  {q:'Bút danh "Fujiko Fujio" lúc đầu là tên chung của Fujimoto Hiroshi và người bạn nào?', a:'Abiko Motoo', w:['Tezuka Osamu','Akatsuka Fujio','Toriyama Akira'], s:'Bút danh "Fujiko Fujio" lúc đầu là tên chung của Fujimoto Hiroshi và {}.'},
+  {q:'Doraemon xuất hiện lần đầu trên tạp chí vào cuối năm nào?', a:'1969', w:['1959','1979','1989'], s:'Doraemon xuất hiện lần đầu trên tạp chí vào cuối năm {}.'},
+  {q:'Nhà xuất bản Nhật Bản nào phát hành truyện Doraemon?', a:'Shogakukan', w:['Shueisha','Kodansha','Kadokawa'], s:'Ở Nhật Bản, truyện Doraemon do nhà xuất bản {} phát hành.'},
+  {q:'Bộ truyện Doraemon bản gốc (khổ nhỏ) gồm bao nhiêu tập?', a:'45 tập', w:['30 tập','60 tập','100 tập'], s:'Bộ truyện Doraemon bản gốc (khổ nhỏ) gồm {}.'},
+  {q:'Tác giả Fujiko F. Fujio qua đời vào năm nào?', a:'1996', w:['1989','2001','2010'], s:'Tác giả Fujiko F. Fujio qua đời vào năm {}.'},
+  {q:'Ở Việt Nam, nhà xuất bản nào phát hành truyện Doraemon?', a:'NXB Kim Đồng', w:['NXB Trẻ','NXB Giáo dục','NXB Văn học'], s:'Ở Việt Nam, truyện Doraemon do {} phát hành.'},
+  {q:'NXB Kim Đồng bắt đầu phát hành truyện Doraemon vào năm nào?', a:'1992', w:['1982','1998','2005'], s:'NXB Kim Đồng bắt đầu phát hành truyện Doraemon vào năm {}.'},
+  {q:'Trong bản dịch đầu tiên ở Việt Nam, tên chú mèo máy được viết là gì?', a:'Đôrêmon', w:['Đoraemon','Đôrêmông','Đôraêmôn'], s:'Trong bản dịch đầu tiên ở Việt Nam, tên chú mèo máy được viết là {}.'},
+  {q:'Loạt phim hoạt hình Doraemon dài kỳ trên đài TV Asahi bắt đầu chiếu từ năm nào?', a:'1979', w:['1969','1989','1999'], s:'Loạt phim hoạt hình Doraemon dài kỳ trên đài TV Asahi bắt đầu chiếu từ năm {}.'},
+  {q:'Phiên bản hoạt hình Doraemon đầu tiên (năm 1973) được chiếu trên đài truyền hình nào?', a:'Nippon TV', w:['TV Asahi','NHK','Fuji TV'], s:'Phiên bản hoạt hình Doraemon đầu tiên (năm 1973) được chiếu trên đài {}.'},
+  {q:'Phim điện ảnh Doraemon đầu tiên (năm 1980) có tên là gì?', a:'Chú khủng long của Nobita', w:['Nobita và lâu đài dưới đáy biển','Nobita và chuyến phiêu lưu ở biển phương Nam','Stand by Me Doraemon'], s:'Phim điện ảnh Doraemon đầu tiên (năm 1980) có tên là "{}".'},
+  {q:'Phim hoạt hình 3D "Stand by Me Doraemon" ra mắt năm nào?', a:'2014', w:['2004','2010','2018'], s:'Phim hoạt hình 3D "Stand by Me Doraemon" ra mắt năm {}.'},
+  {q:'Phim "Stand by Me Doraemon 2" ra mắt năm nào?', a:'2020', w:['2016','2018','2023'], s:'Phim "Stand by Me Doraemon 2" ra mắt năm {}.'},
+  {q:'Phim điện ảnh Doraemon hằng năm thường ra rạp ở Nhật vào mùa nào?', a:'mùa xuân', w:['mùa hè','mùa thu','mùa đông'], s:'Phim điện ảnh Doraemon hằng năm thường ra rạp ở Nhật vào {}.'},
+  {q:'Ai lồng tiếng cho Doraemon trong giai đoạn 1979 – 2005?', a:'Oyama Nobuyo', w:['Mizuta Wasabi','Nozawa Masako','Takayama Minami'], s:'Người lồng tiếng cho Doraemon trong giai đoạn 1979 – 2005 là {}.'},
+  {q:'Từ năm 2005, ai lồng tiếng cho Doraemon?', a:'Mizuta Wasabi', w:['Oyama Nobuyo','Nozawa Masako','Takayama Minami'], s:'Từ năm 2005, người lồng tiếng cho Doraemon là {}.'},
+  {q:'Năm 2008, Bộ Ngoại giao Nhật Bản chọn Doraemon làm gì?', a:'đại sứ hoạt hình', w:['đại sứ du lịch','đại sứ thể thao','đại sứ môi trường'], s:'Năm 2008, Bộ Ngoại giao Nhật Bản chọn Doraemon làm {}.'},
+  {q:'Năm 2002, tạp chí Time châu Á bình chọn Doraemon là một trong những gương mặt nào?', a:'anh hùng châu Á', w:['ngôi sao điện ảnh châu Á','vận động viên châu Á','nhà khoa học châu Á'], s:'Năm 2002, tạp chí Time châu Á bình chọn Doraemon là một trong những {}.'},
+  {q:'Bảo tàng Fujiko F. Fujio nằm ở thành phố nào của Nhật Bản?', a:'Kawasaki', w:['Osaka','Kyoto','Sapporo'], s:'Bảo tàng Fujiko F. Fujio nằm ở thành phố {}.'},
+  {q:'Bảo tàng Fujiko F. Fujio mở cửa năm nào?', a:'2011', w:['2001','2005','2016'], s:'Bảo tàng Fujiko F. Fujio mở cửa năm {}.'},
+  {q:'Bài hát chủ đề của phim Doraemon giai đoạn 1979 – 2005 có tên tiếng Nhật là gì?', a:'Doraemon no Uta', w:['Sakura no Uta','Umi no Uta','Tomodachi no Uta'], s:'Bài hát chủ đề của phim Doraemon giai đoạn 1979 – 2005 có tên là "{}".'},
+  {q:'Chữ "Dora" trong tên Doraemon được cho là bắt nguồn từ từ tiếng Nhật nào?', a:'"doraneko" (mèo hoang)', w:['"dorayaki" (bánh rán)','"doragon" (con rồng)','"dorama" (phim truyền hình)'], s:'Chữ "Dora" trong tên Doraemon được cho là bắt nguồn từ {}.'},
+  {q:'Doraemon được sản xuất tại nhà máy robot nào?', a:'Matsushiba', w:['Toyota','Sony','Mitsubishi'], s:'Doraemon được sản xuất tại nhà máy robot {}.'},
+  {q:'Doraemon cao bao nhiêu?', a:'129,3 cm', w:['100 cm','150 cm','112,9 cm'], s:'Doraemon cao {}.'},
+  {q:'Doraemon nặng bao nhiêu?', a:'129,3 kg', w:['91 kg','50 kg','200 kg'], s:'Doraemon nặng {}.'},
+  {q:'Vòng ngực của Doraemon là bao nhiêu?', a:'129,3 cm', w:['90 cm','100 cm','150 cm'], s:'Vòng ngực của Doraemon là {}.'},
+  {q:'Khi hoảng sợ vì gặp chuột, Doraemon chạy với tốc độ bao nhiêu?', a:'129,3 km/giờ', w:['50 km/giờ','100 km/giờ','300 km/giờ'], s:'Khi hoảng sợ vì gặp chuột, Doraemon chạy với tốc độ {}.'},
+  {q:'Sức mạnh của Doraemon tương đương bao nhiêu mã lực?', a:'129,3 mã lực', w:['10 mã lực','50 mã lực','1.000 mã lực'], s:'Sức mạnh của Doraemon tương đương {}.'},
+  {q:'Khi đi, chân Doraemon thực ra lơ lửng cách mặt đất bao nhiêu?', a:'3 mm', w:['3 cm','10 cm','30 cm'], s:'Khi đi, chân Doraemon thực ra lơ lửng cách mặt đất {}.'},
+  {q:'Doraemon có tất cả bao nhiêu sợi râu?', a:'6 sợi', w:['4 sợi','8 sợi','10 sợi'], s:'Doraemon có tất cả {} râu.'},
+  {q:'Mũi của Doraemon có màu gì?', a:'màu đỏ', w:['màu đen','màu xanh','màu vàng'], s:'Mũi của Doraemon có {}.'},
+  {q:'Chiếc chuông đeo ở cổ Doraemon có màu gì?', a:'màu vàng', w:['màu đỏ','màu xanh','màu trắng'], s:'Chiếc chuông đeo ở cổ Doraemon có {}.'},
+  {q:'Vì sao Doraemon bị mất đôi tai?', a:'bị chuột gặm mất', w:['bị Nobita làm gãy','bị rơi khi bay bằng chong chóng tre','tự tháo ra cho mát'], s:'Doraemon bị mất đôi tai vì {}.'},
+  {q:'Vì sao Doraemon từ màu vàng chuyển sang màu xanh?', a:'khóc quá nhiều khi mất tai nên lớp sơn vàng bị phai', w:['bị Nobita sơn lại','nhà máy hết sơn vàng','bị rơi xuống biển'], s:'Doraemon từ màu vàng chuyển sang màu xanh vì {}.'},
+  {q:'Lối vào cỗ máy thời gian nằm ở đâu?', a:'ngăn kéo bàn học của Nobita', w:['tủ âm tường','gầm giường','nhà kho sau vườn'], s:'Lối vào cỗ máy thời gian nằm ở {}.'},
+  {q:'Sewashi gửi Doraemon về quá khứ để làm gì?', a:'giúp Nobita thay đổi tương lai, để con cháu đỡ khổ', w:['đi tìm kho báu','học tiếng Nhật thời xưa','sửa lại cỗ máy thời gian'], s:'Sewashi gửi Doraemon về quá khứ để {}.'},
+  {q:'Nhóm bạn của Nobita thường tụ tập chơi ở đâu?', a:'bãi đất trống có những ống cống bê tông', w:['công viên nước','bãi biển','sân thượng trường học'], s:'Nhóm bạn của Nobita thường tụ tập chơi ở {}.'},
+  {q:'Ở bãi đất trống quen thuộc có bao nhiêu ống cống bê tông?', a:'3', w:['2','4','5'], s:'Ở bãi đất trống quen thuộc có {} ống cống bê tông.'},
+  {q:'Con trai của Nobita trong tương lai tên là gì?', a:'Nobisuke', w:['Sewashi','Takeshi','Hidetoshi'], s:'Con trai của Nobita trong tương lai tên là {}.'},
+  {q:'Nobita có thể ngủ say chỉ sau bao lâu khi đặt lưng xuống?', a:'0,93 giây', w:['10 giây','5 phút','30 phút'], s:'Nobita có thể ngủ say chỉ sau {} khi đặt lưng xuống.'},
+  {q:'Nhóm bạn robot thân thiết "Doraemons" gồm bao nhiêu thành viên?', a:'7', w:['3','5','10'], s:'Nhóm bạn robot thân thiết "Doraemons" gồm {} thành viên.'},
+  {q:'Bộ truyện nào sau đây cũng do Fujiko F. Fujio sáng tác?', a:'Siêu nhân Perman', w:['Bảy viên ngọc rồng','Thám tử lừng danh Conan','Đảo hải tặc'], s:'Bộ truyện "{}" cũng do Fujiko F. Fujio sáng tác.'},
+  {q:'Bộ truyện "Ninja Hattori" là tác phẩm của ai?', a:'Fujiko A. Fujio (Abiko Motoo)', w:['Fujiko F. Fujio','Toriyama Akira','Aoyama Gosho'], s:'Bộ truyện "Ninja Hattori" là tác phẩm của {}.'},
+  {q:'Gia đình Nobita sống ở thành phố nào?', a:'Tokyo', w:['Osaka','Kyoto','Sapporo'], s:'Gia đình Nobita sống ở thành phố {}.'}
+];
+
+/* ===================== SINH KHO CÂU HỎI ===================== */
+const rnd = n => Math.floor(Math.random()*n);
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const pick = (a,n) => shuffle(a).slice(0,n);
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+function buildBank(){
+  const bank = [];
+  const mc = (fid,q,ans,wrong,exp) => bank.push({fid,type:'mc',q,ans,wrong,exp});
+  const tf = (fid,q,truth,exp) => bank.push({fid,type:'tf',q,ans:truth?'Đúng':'Sai',exp});
+  const keys = Object.keys(C);
+
+  TRAITS.forEach(([who,t,ex=[]],i) => {
+    const fid = 't'+i, name = C[who], exp = `${name} ${t}.`;
+    const pool = keys.filter(k => k!==who && !ex.includes(k) && !t.includes(C[k])).map(k=>C[k]);
+    mc(fid, `Nhân vật nào ${t}?`, name, pick(pool,3), exp);
+    tf(fid, `${name} ${t}.`, true, exp);
+    pick(pool,2).forEach(w => tf(fid, `${w} ${t}.`, false, exp));
+    const others = TRAITS.filter(([w2,t2,ex2=[]]) => w2!==who && !ex2.includes(who) && !t2.includes(name)).map(x=>cap(x[1]));
+    mc(fid, `Điều nào sau đây đúng về ${name}?`, cap(t), pick(others,3), exp);
+  });
+
+  GADGETS.forEach(([n,f],i) => {
+    const fid = 'g'+i, exp = `Bảo bối ${n} dùng để ${f}.`;
+    const otherF = GADGETS.filter((_,j)=>j!==i).map(x=>x[1]);
+    const otherN = GADGETS.filter((_,j)=>j!==i).map(x=>x[0]);
+    mc(fid, `Bảo bối ${n} dùng để làm gì?`, cap(f), pick(otherF,3).map(cap), exp);
+    mc(fid, `Bảo bối nào dùng để ${f}?`, n, pick(otherN,3), exp);
+    tf(fid, `Bảo bối ${n} dùng để ${f}.`, true, exp);
+    pick(otherF,2).forEach(w => tf(fid, `Bảo bối ${n} dùng để ${w}.`, false, exp));
+  });
+
+  MISC.forEach((m,i) => {
+    const fid = 'm'+i, fill = v => cap(m.s.replace('{}',v)), exp = fill(m.a);
+    mc(fid, m.q, cap(m.a), m.w.map(cap), exp);
+    tf(fid, fill(m.a), true, exp);
+    pick(m.w,2).forEach(w => tf(fid, fill(w), false, exp));
+  });
+  return bank;
+}
+
+const BANK = buildBank();
+const ROUND = 20;
+
+function drawRound(){
+  const byFact = {};
+  BANK.forEach(q => (byFact[q.fid] ||= []).push(q));
+  // Cân bằng: khoảng 60% trắc nghiệm, 40% Đúng/Sai; câu Đúng/Sai chia đều đáp án Đúng và Sai
+  return pick(Object.keys(byFact), ROUND).map(fid => {
+    const qs = byFact[fid];
+    const want = Math.random() < 0.6 ? x => x.type==='mc'
+               : Math.random() < 0.5 ? x => x.ans==='Đúng' && x.type==='tf'
+               : x => x.ans==='Sai';
+    const cand = qs.filter(want).length ? qs.filter(want) : qs;
+    const q = cand[rnd(cand.length)];
+    const opts = q.type==='tf' ? ['Đúng','Sai'] : shuffle([q.ans, ...q.wrong]);
+    return {...q, opts};
+  });
+}
+
+/* ===================== GIAO DIỆN ===================== */
+const $ = id => document.getElementById(id);
+let round = [], idx = 0, score = 0, answered = false, wrongs = [], soundOn = true, actx = null;
+
+$('bankCount').textContent = `Kho: ${BANK.length} câu hỏi`;
+
+function beep(ok){
+  if (!soundOn) return;
+  try {
+    actx ||= new (window.AudioContext || window.webkitAudioContext)();
+    const notes = ok ? [660,880] : [300,220];
+    notes.forEach((f,k) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = ok ? 'triangle' : 'square'; o.frequency.value = f;
+      const t0 = actx.currentTime + k*0.12;
+      g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(0.15,t0+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t0+0.18);
+      o.connect(g).connect(actx.destination); o.start(t0); o.stop(t0+0.2);
+    });
+  } catch(e) {}
+}
+
+function show(id){ ['start','play','result'].forEach(s => $(s).classList.toggle('hide', s!==id)); }
+
+function start(){
+  round = drawRound(); idx = 0; score = 0; wrongs = [];
+  show('play'); render();
+}
+
+function render(){
+  const q = round[idx]; answered = false;
+  $('counter').textContent = `Câu ${idx+1}/${ROUND}`;
+  $('score').textContent = `⭐ ${score}`;
+  $('prog').style.width = `${idx/ROUND*100}%`;
+  $('qtype').textContent = q.type==='tf' ? 'Đúng hay sai?' : 'Trắc nghiệm';
+  $('qtext').textContent = q.q;
+  const box = $('opts'); box.innerHTML = ''; box.className = 'opts' + (q.type==='tf' ? ' tf' : '');
+  q.opts.forEach((o,k) => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = q.type==='tf' ? '' : `<span class="k">${'ABCD'[k]}</span>`;
+    b.appendChild(document.createTextNode(q.type==='tf' ? (o==='Đúng' ? '✔ Đúng' : '✘ Sai') : o));
+    b.onclick = () => choose(k);
+    box.appendChild(b);
+  });
+  $('exp').className = 'exp'; $('nextWrap').className = 'next';
+  $('next').textContent = idx === ROUND-1 ? 'Xem kết quả →' : 'Câu tiếp →';
+}
+
+function choose(k){
+  if (answered) return; answered = true;
+  const q = round[idx], picked = q.opts[k], ok = picked === q.ans;
+  const btns = [...$('opts').children];
+  btns.forEach((b,j) => { b.disabled = true; if (q.opts[j]===q.ans) b.classList.add('ok'); });
+  if (!ok) { btns[k].classList.add('bad'); wrongs.push({q, picked}); } else score++;
+  $('score').textContent = `⭐ ${score}`;
+  const e = $('exp');
+  e.className = 'exp show ' + (ok ? 'ok' : 'bad');
+  e.textContent = (ok ? 'Chính xác! ' : 'Chưa đúng rồi. ') + q.exp;
+  $('nextWrap').className = 'next show';
+  $('next').focus({preventScroll:true});
+  beep(ok);
+}
+
+function next(){
+  if (!answered) return;
+  if (++idx < ROUND) render(); else finish();
+}
+
+function finish(){
+  $('prog').style.width = '100%';
+  show('result');
+  $('final').textContent = `${score}/${ROUND}`;
+  const stars = score>=18 ? 3 : score>=13 ? 2 : score>=8 ? 1 : 0;
+  $('stars').textContent = '★'.repeat(stars) + '☆'.repeat(3-stars);
+  $('stars').style.color = '#f0a500';
+  $('rank').textContent =
+    score===ROUND ? 'Tuyệt đối! Bạn là chuyên gia Doraemon thứ thiệt.' :
+    score>=18 ? 'Xuất sắc! Chắc bạn có túi thần kỳ trong tay rồi.' :
+    score>=13 ? 'Giỏi lắm! Thêm vài lượt nữa là thành cao thủ.' :
+    score>=8  ? 'Khá đấy! Đọc thêm vài tập truyện rồi thử lại nhé.' :
+                'Cố lên! Mượn tạm Bánh mì trí nhớ rồi chơi lại nào.';
+  const rv = $('review');
+  if (!wrongs.length) { rv.innerHTML = ''; return; }
+  rv.innerHTML = `<h3>Các câu chưa đúng (${wrongs.length})</h3>`;
+  wrongs.forEach(({q,picked}) => {
+    const d = document.createElement('div'); d.className = 'rv';
+    const add = (cls,txt) => { const p = document.createElement('div'); p.className = cls; p.textContent = txt; d.appendChild(p); };
+    add('yq', q.q); add('ya', 'Bạn chọn: ' + picked);
+    add('ra', q.type==='tf' ? 'Đáp án: ' + q.ans + '. ' + q.exp : 'Đáp án: ' + q.ans);
+    rv.appendChild(d);
+  });
+}
+
+$('go').onclick = start;
+$('again').onclick = start;
+$('next').onclick = next;
+$('snd').onclick = () => { soundOn = !soundOn; $('snd').textContent = soundOn ? '🔊' : '🔇'; };
+
+document.addEventListener('keydown', e => {
+  if ($('play').classList.contains('hide')) return;
+  const n = parseInt(e.key,10);
+  if (!answered && n>=1 && n<=round[idx].opts.length) choose(n-1);
+  else if (answered && (e.key==='Enter' || e.key===' ')) { e.preventDefault(); next(); }
+});
+</script>
+</body>
+</html>
